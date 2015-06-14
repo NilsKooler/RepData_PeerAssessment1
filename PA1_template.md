@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 Comments: 
 This assigment is created and tested on Windows 7 with R Studio
@@ -18,7 +13,8 @@ Show any code that is needed to:</br>
 1.2. Process/transform the data (if necessary) into a format suitable for your analysis</br>
 Comments:
 unzip file manually and then read in the csv file
-```{r echo=TRUE}
+
+```r
 activtyData <- read.csv("./activity/activity.csv")
 ```
 
@@ -30,16 +26,40 @@ For this part of the assignment, you can ignore the missing values in the datase
 2.3. Calculate and report the mean and median of the total number of steps taken per day</br>
 
 
-```{r echo=TRUE}
+
+```r
 library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.1.3
+```
+
+```r
 #Requirement 2.1
 totalSteps <- tapply(activtyData$steps, activtyData$date, FUN=sum, na.rm=TRUE)
 #Requirement 2.2
 qplot(totalSteps, binwidth=1000, xlab="# steps taken each day")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
+```r
 #Requirement 2.3 mean
 mean(totalSteps, na.rm=TRUE)
+```
+
+```
+## [1] 9354.23
+```
+
+```r
 #Requirement 2.3 median
 median(totalSteps, na.rm=TRUE)
+```
+
+```
+## [1] 10395
 ```
 
 ## What is the average daily activity pattern?
@@ -48,13 +68,24 @@ Requirements:</br>
 3.2 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps? </br>
 
 
-```{r echo=TRUE}
+
+```r
 #Requirement 3.1
 average<- aggregate(x=list(steps=activtyData$steps), by=list(interval=activtyData$interval),
                       FUN=mean, na.rm=TRUE)
 ggplot(data=average, aes(x=interval, y=steps)) +  geom_line() +xlab("5-min interval") + ylab("average # of steps taken")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 #Requirement 3.2
 average[which.max(average$steps),]
+```
+
+```
+##     interval    steps
+## 104      835 206.1698
 ```
 
 
@@ -67,12 +98,18 @@ Requirements:<br>
 Comment: Requirement 4.4 is a comparison between the total steps calculated earlier. <br>
 When comparing the resuls it becomes clear that after imputing the missing dada that there the mean and median become higher.
 
-```{r echo=TRUE}
+
+```r
 #Requirement 4.1 
 missingValues<-sum(is.na(activtyData$steps))
 print(missingValues)
+```
 
+```
+## [1] 2304
+```
 
+```r
 # Requirement 4.2
 fill <- function(steps, interval) {if (!is.na(steps)) return(steps) else return (average[average$interval==interval, "steps"])}
 #Requirement 4.3 
@@ -80,10 +117,26 @@ newactivtyData <- activtyData
 newactivtyData$steps <- mapply(fill, newactivtyData$steps, newactivtyData$interval)
 totalSteps2 <- tapply(newactivtyData$steps, newactivtyData$date, FUN=sum)
 qplot(totalSteps2, binwidth=1000, xlab="total # of steps taken each day")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+```r
 #Requirement 4.4
 mean(totalSteps2)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 #Requirement 4.4
 median(totalSteps2)
+```
+
+```
+## [1] 10766.19
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -91,7 +144,8 @@ Requirements:<br>
 5.1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.<br>
 5.2 Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.<br>
 
-```{r echo=TRUE}
+
+```r
 # Requirement 5.1
 IsDutchWeekend <- function(date) {
   #Dutch dates Dutch day notations for Sat, Sun .... etc...
@@ -106,8 +160,8 @@ newactivtyData$week <- as.factor(newactivtyData$isWeekend)
 #Requirement 5.2
 averages <- aggregate(steps ~ interval+week, data=newactivtyData, mean)
 ggplot(averages, aes(interval, steps)) + geom_line() + facet_grid(week ~ .) + xlab("5-minute interval") + ylab("# of steps")
-
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
 
 
